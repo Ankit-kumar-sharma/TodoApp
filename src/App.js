@@ -4,6 +4,8 @@ import { FaArrowRightLong } from "react-icons/fa6";
 import { IoCheckmarkCircleSharp } from "react-icons/io5";
 import { FaPlus } from "react-icons/fa";
 import { useState } from "react";
+import React, { useEffect } from "react";
+import axios from "axios";
 
 function App() {
   const [isGroupLimitExceed, setIsGroupLimitExceed] = useState(false);
@@ -15,6 +17,32 @@ function App() {
   const [end, setEnd] = useState(10);
   const [groups, setGroups] = useState([]);
   const [isInputVisible, setInputVisible] = useState(true);
+  const [taskData, setTaskData] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const promises = [];
+        for (let id = 1; id <= 10; id++) {
+          promises.push(
+            axios.get(`https://jsonplaceholder.typicode.com/todos/${id}`)
+          );
+        }
+        const responses = await Promise.all(promises);
+        const responseData = responses.map((response) => response.data);
+        setTaskData(responseData);
+      } catch (error) {
+        console.error("Error fetching todos:", error);
+      }
+    };
+    fetchData();
+  }, []);
+  const getSpecificTasksDetail = (start, end) => {
+    if (start >= 0 && end < taskData.length && start <= end) {
+      return taskData.slice(start, end + 1);
+    }
+    return [];
+  };
 
   const deleteGroup = (e) => {
     setSuccessMsg("");
@@ -165,8 +193,14 @@ function App() {
                 <div className="taskStatusInfoContainer">
                   {showStatus ? (
                     <>
-                      <p>(1) True</p>
-                      <p>(2) False</p>
+                      {getSpecificTasksDetail(
+                        group.start - 1,
+                        group.end - 1
+                      ).map((task) => (
+                        <p key={task.id}>
+                          {task.id}){task.completed ? "true" : "false"}
+                        </p>
+                      ))}
                     </>
                   ) : null}
                   <div className="checkIconContainer">
