@@ -5,7 +5,6 @@ import { IoCheckmarkCircleSharp } from "react-icons/io5";
 import { FaPlus } from "react-icons/fa";
 import { useState } from "react";
 import React, { useEffect } from "react";
-import axios from "axios";
 
 function App() {
   const [isGroupLimitExceed, setIsGroupLimitExceed] = useState(false);
@@ -20,23 +19,33 @@ function App() {
   const [taskData, setTaskData] = useState([]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const promises = [];
-        for (let id = 1; id <= 10; id++) {
-          promises.push(
-            axios.get(`https://jsonplaceholder.typicode.com/todos/${id}`)
-          );
-        }
-        const responses = await Promise.all(promises);
-        const responseData = responses.map((response) => response.data);
-        setTaskData(responseData);
-      } catch (error) {
-        console.error("Error fetching todos:", error);
+    const fetchData = () => {
+      const promises = [];
+      for (let id = 1; id <= 10; id++) {
+        promises.push(
+          fetch(`https://jsonplaceholder.typicode.com/todos/${id}`).then(
+            (response) => {
+              if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+              }
+              return response.json();
+            }
+          )
+        );
       }
+
+      Promise.all(promises)
+        .then((responses) => {
+          setTaskData(responses);
+        })
+        .catch((error) => {
+          console.error("Error fetching todos:", error);
+        });
     };
+
     fetchData();
   }, []);
+
   const getSpecificTasksDetail = (start, end) => {
     if (start >= 0 && end < taskData.length && start <= end) {
       return taskData.slice(start, end + 1);
@@ -78,17 +87,22 @@ function App() {
       return;
     }
   };
+
   const hideInputGroup = () => {
     setInputVisible(false);
   };
+
   const changeShowStatus = () => {
     setShowStatus(true);
   };
+
   const addGroups = () => {
+    setInputVisible(true);
     if (successStatus === true) {
+      setInputVisible(true);
+      setSuccessStatus(false);
       return;
     }
-    setInputVisible(true);
     const newStart = parseInt(start, 10);
     const newEnd = parseInt(end, 10);
     if (groups.length === 0 && isInputVisible === false) {
@@ -103,17 +117,20 @@ function App() {
     if (groups.length > 4) {
       setIsGroupLimitExceed(true);
       setInputVisible(false);
+      setSuccessMsg("");
       setError("Maximum group limit exceeds!!!");
       return;
     }
     if (isNaN(newStart) || isNaN(newEnd)) {
       setError("Start and End must be numbers");
+      setSuccessMsg("");
       return;
     }
     if (newStart < 1 || newEnd > 10 || newStart >= newEnd) {
       setError(
         "Invalid range. Start should be less than End and both should be between 1 and 10"
       );
+      setSuccessMsg("");
       return;
     }
     if (groups[groups.length - 1] !== undefined) {
@@ -142,6 +159,7 @@ function App() {
       return;
     }
   };
+  
   return (
     <>
       <div className="container">
