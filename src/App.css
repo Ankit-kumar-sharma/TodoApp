@@ -1,5 +1,5 @@
 :root {
-  color: gray;
+  color: green;
   --container-width: 80%;
 }
 button {
@@ -11,7 +11,7 @@ input[type="number"] {
   border: none;
   border-radius: 5px;
   text-align: center;
-  color: gray;
+  color: green;
   outline-color: blue;
   outline-width: 1px;
 }
@@ -67,7 +67,7 @@ input[type="number"] {
   justify-content: center;
   align-items: center;
   background-color: #eeee;
-  color: gray;
+  color: green;
 }
 .startTaskNumber {
   width: 28%;

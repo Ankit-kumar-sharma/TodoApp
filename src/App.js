@@ -18,6 +18,27 @@ function App() {
   const [isInputVisible, setInputVisible] = useState(true);
   const [taskData, setTaskData] = useState([]);
 
+
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const promises = [];
+  //       for (let id = 1; id <= 10; id++) {
+  //         promises.push(
+  //           axios.get(`https://jsonplaceholder.typicode.com/todos/${id}`)
+  //         );
+  //       }
+  //       console.log(promises);
+  //       const responses = await Promise.all(promises);
+  //       const responseData = responses.map((response) => response.data);
+  //       setTaskData(responseData);
+  //     } catch (error) {
+  //       console.error("Error fetching todos:", error);
+  //     }
+  //   };
+  //   fetchData();
+  // }, []);
+
   useEffect(() => {
     const fetchData = () => {
       const promises = [];
@@ -59,7 +80,9 @@ function App() {
     let groupId = deleteBtn.id.split("-");
     let index = groupId[1];
     let allData = [...groups];
+    console.log(allData);
     allData.splice(index, 1);
+    console.log(allData);
     setGroups(allData);
     if (groups.length <= 1 || groups.length < 6) {
       setInputVisible(true);
@@ -159,7 +182,7 @@ function App() {
       return;
     }
   };
-  
+
   return (
     <>
       <div className="container">
