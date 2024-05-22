@@ -1,5 +1,5 @@
 :root {
-  color: green;
+  color: blue;
   --container-width: 80%;
 }
 button {
@@ -11,7 +11,7 @@ input[type="number"] {
   border: none;
   border-radius: 5px;
   text-align: center;
-  color: green;
+  color: blue;
   outline-color: blue;
   outline-width: 1px;
 }
@@ -67,7 +67,7 @@ input[type="number"] {
   justify-content: center;
   align-items: center;
   background-color: #eeee;
-  color: green;
+  color: blue;
 }
 .startTaskNumber {
   width: 28%;
@@ -109,7 +109,7 @@ input[type="number"] {
 .checkIconContainer {
   position: absolute;
   right: 5px;
-  color: green;
+  color: blue;
 }
 .addGroupBtnContainer {
   width: var(--container-width);

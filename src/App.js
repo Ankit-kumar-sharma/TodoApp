@@ -1,10 +1,11 @@
 import "./App.css";
-import { MdDelete } from "react-icons/md";
-import { FaArrowRightLong } from "react-icons/fa6";
-import { IoCheckmarkCircleSharp } from "react-icons/io5";
-import { FaPlus } from "react-icons/fa";
 import { useState } from "react";
 import React, { useEffect } from "react";
+import Group from "./Group";
+import AddGroupOption from "./AddGroupOption";
+import AddGroupBtn from "./AddGroupBtn";
+import ShowBtn from "./ShowBtn";
+import MessageContainer from "./MessageContainer";
 
 function App() {
   const [isGroupLimitExceed, setIsGroupLimitExceed] = useState(false);
@@ -17,27 +18,6 @@ function App() {
   const [groups, setGroups] = useState([]);
   const [isInputVisible, setInputVisible] = useState(true);
   const [taskData, setTaskData] = useState([]);
-
-
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       const promises = [];
-  //       for (let id = 1; id <= 10; id++) {
-  //         promises.push(
-  //           axios.get(`https://jsonplaceholder.typicode.com/todos/${id}`)
-  //         );
-  //       }
-  //       console.log(promises);
-  //       const responses = await Promise.all(promises);
-  //       const responseData = responses.map((response) => response.data);
-  //       setTaskData(responseData);
-  //     } catch (error) {
-  //       console.error("Error fetching todos:", error);
-  //     }
-  //   };
-  //   fetchData();
-  // }, []);
 
   useEffect(() => {
     const fetchData = () => {
@@ -76,13 +56,12 @@ function App() {
 
   const deleteGroup = (e) => {
     setSuccessMsg("");
+    setShowStatus(false);
     let deleteBtn = e.target;
     let groupId = deleteBtn.id.split("-");
     let index = groupId[1];
     let allData = [...groups];
-    console.log(allData);
     allData.splice(index, 1);
-    console.log(allData);
     setGroups(allData);
     if (groups.length <= 1 || groups.length < 6) {
       setInputVisible(true);
@@ -121,6 +100,7 @@ function App() {
 
   const addGroups = () => {
     setInputVisible(true);
+    setShowStatus(false);
     if (successStatus === true) {
       setInputVisible(true);
       setSuccessStatus(false);
@@ -164,7 +144,9 @@ function App() {
         return;
       }
       if (lastValidGroupEnd === 10) {
-        setSuccessMsg("Hurrah all group have been added successfully!!");
+        setSuccessMsg(
+          "Hurrah all group have been added successfully!! Click Show Status to see the status"
+        );
         setInputVisible(false);
         return;
       }
@@ -176,143 +158,48 @@ function App() {
     setEnd("");
     setError("");
     if (newEnd === 10) {
-      setSuccessMsg("Hurrah all group have been added successfully!!");
+      setSuccessMsg(
+        "Hurrah all group have been added successfully!! Click Show Status to see the status"
+      );
       setInputVisible(false);
       setSuccessStatus(true);
       return;
     }
+  };
+  const addStartValue = (value) => {
+    setStart(value);
+  };
+  const addEndValue = (value) => {
+    setEnd(value);
   };
 
   return (
     <>
       <div className="container">
         <div className="groupContent">
-          {groups.map((group, index) => (
-            <div
-              key={index}
-              className="groupContainerParent"
-              id={`groupIndex-${index}`}
-            >
-              <div className="groupContainer">
-                <div className="deleteIconContainer">
-                  <button
-                    className="deleteBtn"
-                    onClick={(event) => deleteGroup(event)}
-                    id={`deleteBtnIndex-${index}`}
-                  >
-                    <span className="deleteBtnSpan">
-                      <MdDelete id={`deleteBtn-${index}`} />
-                    </span>
-                  </button>
-                </div>
-                <div className="groupInfoDiv">
-                  <div className="groupName">
-                    <p>Group {index + 1}</p>
-                  </div>
-                  <div className="startTaskNumber">
-                    <input
-                      type="number"
-                      name="startTaskNumber"
-                      id={`startInputGroupNumber-${index}`}
-                      value={group.start}
-                      disabled
-                    ></input>
-                  </div>
-                  <div className="arrowIcon">
-                    <FaArrowRightLong />
-                  </div>
-                  <div className="endTaskNumber">
-                    <input
-                      type="number"
-                      name="endTaskNumber"
-                      id={`endInputGroupNumber-${index}`}
-                      value={group.end}
-                      disabled
-                    ></input>
-                  </div>
-                </div>
-                <div className="taskStatusInfoContainer">
-                  {showStatus ? (
-                    <>
-                      {getSpecificTasksDetail(
-                        group.start - 1,
-                        group.end - 1
-                      ).map((task) => (
-                        <p key={task.id}>
-                          {task.id}){task.completed ? "true" : "false"}
-                        </p>
-                      ))}
-                    </>
-                  ) : null}
-                  <div className="checkIconContainer">
-                    <IoCheckmarkCircleSharp />
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-          {isInputVisible ? (
-            <div className="groupContainerParent" id="groupInputContainerField">
-              <div className="groupContainer">
-                <div className="deleteIconContainer">
-                  <button
-                    className="deleteBtn"
-                    onClick={hideInputGroup}
-                    id="deleteBtnIndex"
-                  >
-                    <span className="deleteBtnSpan">
-                      <MdDelete />
-                    </span>
-                  </button>
-                </div>
-                <div className="groupInfoDiv">
-                  <div className="groupName">
-                    <p>Add Group</p>
-                  </div>
-                  <div className="startTaskNumber">
-                    <input
-                      type="number"
-                      name="startTaskNumber"
-                      id="startInputGroupIndex"
-                      value={start}
-                      onChange={(e) => setStart(e.target.value)}
-                    ></input>
-                  </div>
-                  <div className="arrowIcon">
-                    <FaArrowRightLong />
-                  </div>
-                  <div className="endTaskNumber">
-                    <input
-                      type="number"
-                      name="endTaskNumber"
-                      id="endInputGroupNumber"
-                      value={end}
-                      onChange={(e) => setEnd(e.target.value)}
-                    ></input>
-                  </div>
-                </div>
-                <div className="taskStatusInfoContainer"></div>
-              </div>
-            </div>
-          ) : null}
+          <Group
+            groups={groups}
+            deleteGroup={deleteGroup}
+            getSpecificTasksDetail={getSpecificTasksDetail}
+            showStatus={showStatus}
+          ></Group>
+          <AddGroupOption
+            isInputVisible={isInputVisible}
+            hideInputGroup={hideInputGroup}
+            setStartValue={addStartValue}
+            setEndValue={addEndValue}
+            start={start}
+            end={end}
+          />
         </div>
         <div className="groupFunctionsContainer">
-          <div className="addGroupBtnContainer">
-            {isGroupLimitExceed === false || successStatus === false ? (
-              <button className="addGroupBtn" onClick={addGroups}>
-                <FaPlus color="blue" /> Add Group
-              </button>
-            ) : null}
-          </div>
-          <div className="showStatusContainer">
-            <button className="showStatusBtn" onClick={changeShowStatus}>
-              Show Status
-            </button>
-          </div>
-          <div className="errorMessageContainer">
-            <p className="errorMessage">{error}</p>
-            <p className="successMessage">{success}</p>
-          </div>
+          <AddGroupBtn
+            isGroupLimitExceed={isGroupLimitExceed}
+            successStatus={successStatus}
+            addGroups={addGroups}
+          ></AddGroupBtn>
+          <ShowBtn changeShowStatus={changeShowStatus}></ShowBtn>
+          <MessageContainer success={success} error={error}></MessageContainer>
         </div>
       </div>
     </>
