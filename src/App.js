@@ -16,8 +16,11 @@ function App() {
   const [start, setStart] = useState(1);
   const [end, setEnd] = useState(10);
   const [groups, setGroups] = useState([]);
-  const [isInputVisible, setInputVisible] = useState(true);
+  const [isInputVisible, setInputVisible] = useState(false);
   const [taskData, setTaskData] = useState([]);
+  const [count, setCount] = useState(0);
+  const [isAddOptionVisible, setAddOptionVisible] = useState(true);
+  const [isShowButtonVisible, setIsShowButtonVisible] = useState(true);
 
   useEffect(() => {
     const fetchData = () => {
@@ -43,8 +46,13 @@ function App() {
           console.error("Error fetching todos:", error);
         });
     };
+    const addDefaultValue = () => {
+      let data = [{ start: 1, end: 10 }];
+      setGroups(data);
+    };
 
     fetchData();
+    addDefaultValue();
   }, []);
 
   const getSpecificTasksDetail = (start, end) => {
@@ -56,6 +64,8 @@ function App() {
 
   const deleteGroup = (e) => {
     setSuccessMsg("");
+    setError("");
+    setAddOptionVisible(true);
     setShowStatus(false);
     let deleteBtn = e.target;
     let groupId = deleteBtn.id.split("-");
@@ -63,16 +73,13 @@ function App() {
     let allData = [...groups];
     allData.splice(index, 1);
     setGroups(allData);
-    if (groups.length <= 1 || groups.length < 6) {
-      setInputVisible(true);
-      setIsGroupLimitExceed(false);
-      setError("");
-    }
     let allGroups = [...allData];
+    if (allGroups.length === 0) {
+      setIsShowButtonVisible(false);
+    }
     allGroups.sort((a, b) => a.start - b.start);
     for (let i = 0; i < allGroups.length - 1; i++) {
       if (allGroups[i].end + 1 !== allGroups[i + 1].start) {
-        console.log(allGroups[i].end + 1 + " " + allGroups[i + 1].start);
         setSuccessMsg("");
         setError("Groups have gaps or overlap");
         return;
@@ -100,32 +107,45 @@ function App() {
 
   const addGroups = () => {
     setInputVisible(true);
+    const newStart = parseInt(start, 10);
+    const newEnd = parseInt(end, 10);
+    const newGroup = { start: newStart, end: newEnd };
+    const allGroups = [...groups, newGroup];
+    allGroups.sort((a, b) => a.start - b.start);
+    if (count === 0 && groups[groups.length - 1] !== undefined) {
+      let lastValidGroupEnd = groups[groups.length - 1].end;
+      if (lastValidGroupEnd === newEnd) {
+        let allData = [...groups];
+        allData.splice(0, 1);
+        setGroups(allData);
+        setInputVisible(true);
+        setCount(1);
+        return;
+      }
+    }
+    setInputVisible(true);
     setShowStatus(false);
     if (successStatus === true) {
       setInputVisible(true);
       setSuccessStatus(false);
       return;
     }
-    const newStart = parseInt(start, 10);
-    const newEnd = parseInt(end, 10);
     if (groups.length === 0 && isInputVisible === false) {
       setInputVisible(true);
       return;
     }
-    if (groups.length === 0 && (newStart < 1 || newStart > 1)) {
+    if (
+      groups.length === 0 &&
+      (newStart < 1 || newStart > 1) &&
+      newEnd === 10
+    ) {
       setError("Groups do not cover the entire range from 1 to 10!!!");
+      setInputVisible(true);
       setSuccessMsg("");
-      return;
-    }
-    if (groups.length > 4) {
-      setIsGroupLimitExceed(true);
-      setInputVisible(false);
-      setSuccessMsg("");
-      setError("Maximum group limit exceeds!!!");
       return;
     }
     if (isNaN(newStart) || isNaN(newEnd)) {
-      setError("Start and End must be numbers");
+      setError("Start and End can't be empty and must be numbers");
       setSuccessMsg("");
       return;
     }
@@ -136,34 +156,41 @@ function App() {
       setSuccessMsg("");
       return;
     }
-    if (groups[groups.length - 1] !== undefined) {
-      let lastValidGroupEnd = groups[groups.length - 1].end;
-      if (lastValidGroupEnd + 1 !== newStart) {
-        setError("Groups have gaps or overlap");
+    for (let i = 0; i < allGroups.length - 1; i++) {
+      if (allGroups[i].end + 1 !== allGroups[i + 1].start) {
         setSuccessMsg("");
-        return;
-      }
-      if (lastValidGroupEnd === 10) {
-        setSuccessMsg(
-          "Hurrah all group have been added successfully!! Click Show Status to see the status"
-        );
-        setInputVisible(false);
+        setError("Groups have gaps or overlap");
+        setInputVisible(true);
         return;
       }
     }
-    const newGroup = { start: newStart, end: newEnd };
-    const allGroups = [...groups, newGroup];
     setGroups(allGroups);
+    setIsShowButtonVisible(true);
     setStart("");
     setEnd("");
     setError("");
-    if (newEnd === 10) {
-      setSuccessMsg(
-        "Hurrah all group have been added successfully!! Click Show Status to see the status"
-      );
-      setInputVisible(false);
-      setSuccessStatus(true);
-      return;
+
+    for (let g = 0; g < allGroups.length; g++) {
+      if (allGroups[g].end === 10) {
+        if (
+          allGroups.length >= 1 &&
+          allGroups[0] !== null &&
+          allGroups[0] !== undefined &&
+          (allGroups[0].start !== 1 ||
+            allGroups[allGroups.length - 1].end !== 10)
+        ) {
+          setError("Groups do not cover the entire range from 1 to 10");
+          setSuccessMsg("");
+          setInputVisible(true);
+          return;
+        }
+        setInputVisible(false);
+        setAddOptionVisible(false);
+        setSuccessStatus(true);
+        setSuccessMsg(
+          "Hurrah all group have been added successfully!! Click Show Status to see the status"
+        );
+      }
     }
   };
   const addStartValue = (value) => {
@@ -193,12 +220,17 @@ function App() {
           />
         </div>
         <div className="groupFunctionsContainer">
-          <AddGroupBtn
-            isGroupLimitExceed={isGroupLimitExceed}
-            successStatus={successStatus}
-            addGroups={addGroups}
-          ></AddGroupBtn>
-          <ShowBtn changeShowStatus={changeShowStatus}></ShowBtn>
+          {isAddOptionVisible ? (
+            <AddGroupBtn
+              isGroupLimitExceed={isGroupLimitExceed}
+              successStatus={successStatus}
+              addGroups={addGroups}
+            ></AddGroupBtn>
+          ) : null}
+          <ShowBtn
+            changeShowStatus={changeShowStatus}
+            isShowButtonVisible={isShowButtonVisible}
+          ></ShowBtn>
           <MessageContainer success={success} error={error}></MessageContainer>
         </div>
       </div>
