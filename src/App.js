@@ -8,7 +8,6 @@ import ShowBtn from "./ShowBtn";
 import MessageContainer from "./MessageContainer";
 
 function App() {
-  const [isGroupLimitExceed, setIsGroupLimitExceed] = useState(false);
   const [showStatus, setShowStatus] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccessMsg] = useState("");
@@ -16,11 +15,12 @@ function App() {
   const [start, setStart] = useState(1);
   const [end, setEnd] = useState(10);
   const [groups, setGroups] = useState([]);
-  const [isInputVisible, setInputVisible] = useState(false);
+  const [isInputVisible, setInputVisible] = useState(true);
   const [taskData, setTaskData] = useState([]);
   const [count, setCount] = useState(0);
-  const [isAddOptionVisible, setAddOptionVisible] = useState(true);
-  const [isShowButtonVisible, setIsShowButtonVisible] = useState(true);
+  // const [isAddOptionVisible, setAddOptionVisible] = useState(true);
+  // const [isShowButtonVisible, setIsShowButtonVisible] = useState(true);
+  const[groupIndex,setGroupIndex]=useState(0);
 
   useEffect(() => {
     const fetchData = () => {
@@ -46,13 +46,13 @@ function App() {
           console.error("Error fetching todos:", error);
         });
     };
-    const addDefaultValue = () => {
-      let data = [{ start: 1, end: 10 }];
-      setGroups(data);
-    };
+    // const addDefaultValue = () => {
+    //   let data = [{ start: 1, end: 10 }];
+    //   setGroups(data);
+    // };
 
     fetchData();
-    addDefaultValue();
+    // addDefaultValue();
   }, []);
 
   const getSpecificTasksDetail = (start, end) => {
@@ -65,7 +65,7 @@ function App() {
   const deleteGroup = (e) => {
     setSuccessMsg("");
     setError("");
-    setAddOptionVisible(true);
+    // setAddOptionVisible(true);
     setShowStatus(false);
     let deleteBtn = e.target;
     let groupId = deleteBtn.id.split("-");
@@ -73,10 +73,11 @@ function App() {
     let allData = [...groups];
     allData.splice(index, 1);
     setGroups(allData);
+    setGroupIndex(groupIndex-1);
     let allGroups = [...allData];
-    if (allGroups.length === 0) {
-      setIsShowButtonVisible(false);
-    }
+    // if (allGroups.length === 0) {
+    //   setIsShowButtonVisible(false);
+    // }
     allGroups.sort((a, b) => a.start - b.start);
     for (let i = 0; i < allGroups.length - 1; i++) {
       if (allGroups[i].end + 1 !== allGroups[i + 1].start) {
@@ -165,7 +166,8 @@ function App() {
       }
     }
     setGroups(allGroups);
-    setIsShowButtonVisible(true);
+    setGroupIndex(groupIndex+1);
+    // setIsShowButtonVisible(true);
     setStart("");
     setEnd("");
     setError("");
@@ -185,7 +187,7 @@ function App() {
           return;
         }
         setInputVisible(false);
-        setAddOptionVisible(false);
+        // setAddOptionVisible(false);
         setSuccessStatus(true);
         setSuccessMsg(
           "Hurrah all group have been added successfully!! Click Show Status to see the status"
@@ -217,19 +219,16 @@ function App() {
             setEndValue={addEndValue}
             start={start}
             end={end}
+            groupIndex={groupIndex}
           />
         </div>
-        <div className="groupFunctionsContainer">
-          {isAddOptionVisible ? (
+        <div className="groupFunctionsContainer"> 
             <AddGroupBtn
-              isGroupLimitExceed={isGroupLimitExceed}
               successStatus={successStatus}
               addGroups={addGroups}
             ></AddGroupBtn>
-          ) : null}
           <ShowBtn
             changeShowStatus={changeShowStatus}
-            isShowButtonVisible={isShowButtonVisible}
           ></ShowBtn>
           <MessageContainer success={success} error={error}></MessageContainer>
         </div>

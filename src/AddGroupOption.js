@@ -20,7 +20,7 @@ function AddGroupOption(props) {
             </div>
             <div className="groupInfoDiv">
               <div className="groupName">
-                <p>Add Group</p>
+                <p>Group {props.groupIndex+1}</p>
               </div>
               <div className="startTaskNumber">
                 <input
